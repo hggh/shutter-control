@@ -35,6 +35,19 @@ ISR(TIMER1_COMPA_vect) {
   timer_count++;
 }
 
+
+void send_status() {
+  /*
+   * Status will return Status of the POWER_RELAY;UPDOWN_RELAY;TEMPERATURE
+   */
+
+  byte temperature = radio.readTemperature(-1);
+  char buffer[16];
+  sprintf(buffer, "shutter;%d;%d;%d", digitalRead(PIN_ROLLO_POWER), digitalRead(PIN_ROLLO_UPDOWN), (int)temperature);
+  radio.sendWithRetry(GATEWAYID, buffer, strlen(buffer), 2);
+  radio.receiveDone();
+}
+
 void setup_timer1() {
   TCCR1A = 0;
   TCCR1B = 0;
@@ -157,6 +170,10 @@ void loop() {
       }
       rollo_complete_power_down();
       interrupts();
+    }
+
+    if (command.equals("STATUS")) {
+      send_status();
     }
   }
   if (timer_active == 0) {

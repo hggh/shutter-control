@@ -1,0 +1,15 @@
+#define NODEID        49
+#define NETWORKID     100
+#define GATEWAYID     1
+#define FREQUENCY     RF69_433MHZ
+#define ENCRYPTKEY    "sampleEncryptKey"
+#define ACK_TIME      15
+
+
+#define DEBUG 1
+
+
+#define PIN_ROLLO_POWER A3
+#define PIN_ROLLO_UPDOWN A2
+
+#define ROLLO_COMPLETE_OPERATION_SECOND 35

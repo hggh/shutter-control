@@ -19,17 +19,20 @@ volatile short timer_active = 0;
  * ISR should called every second
  */
 ISR(TIMER1_COMPA_vect) {
-  if (timer_count > ROLLO_COMPLETE_OPERATION_SECOND) {
+  if (timer_count > (ROLLO_COMPLETE_OPERATION_SECOND + 2) ) {
     noInterrupts();
+    rollo_complete_power_down();
     TCCR1A = 0;
     TCCR1B = 0;
-    rollo_halt();
     timer_active = 0;
     interrupts();
   }
-  else {
-    timer_count++;
+  if (timer_count > ROLLO_COMPLETE_OPERATION_SECOND) {
+    noInterrupts();
+    rollo_power_down();
+    interrupts();
   }
+  timer_count++;
 }
 
 void setup_timer1() {
@@ -51,19 +54,25 @@ void setup_timer1() {
   timer_active = 1;
 }
 
-void rollo_halt() {
+
+void rollo_power_down() {
   digitalWrite(PIN_ROLLO_POWER, LOW);
-  delay(5);
+}
+
+void rollo_complete_power_down() {
+  digitalWrite(PIN_ROLLO_POWER, LOW);
   digitalWrite(PIN_ROLLO_UPDOWN, LOW);
 
-  operation_active = 0;
+  operation_active = OPERATION_NOPOWER;
 }
+
 
 void rollo_up() {
   noInterrupts();
   if (operation_active == OPERATION_DOWN) {
-    rollo_halt();
-    delay(700);
+    rollo_power_down();
+    delay(900);
+    rollo_complete_power_down();
   }
   operation_active = OPERATION_UP;
   digitalWrite(PIN_ROLLO_UPDOWN, LOW);
@@ -75,11 +84,13 @@ void rollo_up() {
 void rollo_down() {
   noInterrupts();
   if (operation_active == OPERATION_UP) {
-    rollo_halt();
-    delay(700);
+    rollo_power_down();
+    delay(900);
+    rollo_complete_power_down();
   }
   operation_active = OPERATION_DOWN;
   digitalWrite(PIN_ROLLO_UPDOWN, HIGH);
+  delay(5);
   digitalWrite(PIN_ROLLO_POWER, HIGH);
   setup_timer1();
   interrupts();
@@ -139,7 +150,13 @@ void loop() {
     }
 
     if (command.equals("HALT")) {
-      rollo_halt();
+      noInterrupts();
+      rollo_power_down();
+      if (operation_active == OPERATION_UP) {
+        delay(200);
+      }
+      rollo_complete_power_down();
+      interrupts();
     }
   }
   if (timer_active == 0) {

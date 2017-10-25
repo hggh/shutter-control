@@ -113,13 +113,12 @@ void setup() {
   power_twi_disable();
   power_adc_disable();
 
-   if (DEBUG == 1) {
-    Serial.begin(9600);
-    Serial.println("Starting Rollladen Steuerung");
-  }
-  else {
-    power_usart0_disable();
-  }
+#ifdef DEBUG
+  Serial.begin(9600);
+  Serial.println("Starting Rollladen Steuerung");
+#else
+  power_usart0_disable();
+#endif
 
   pinMode(PIN_ROLLO_POWER, OUTPUT);
   digitalWrite(PIN_ROLLO_POWER, LOW);
@@ -147,12 +146,12 @@ void loop() {
       radio.sendACK();
     }
 
-    if (DEBUG == 1) {
-      Serial.print('[');
-      Serial.print(radio.SENDERID, DEC);
-      Serial.print("] ");
-      Serial.println(command); 
-    }
+#ifdef DEBUG
+    Serial.print('[');
+    Serial.print(radio.SENDERID, DEC);
+    Serial.print("] ");
+    Serial.println(command);
+#endif
 
     if (command.equals("UP")) {
       rollo_up();

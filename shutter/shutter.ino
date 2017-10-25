@@ -1,7 +1,7 @@
 #include <avr/power.h>
+#include <avr/sleep.h>
 
 #include <RFM69.h>
-#include <LowPower.h>
 
 #include "config.h"
 
@@ -176,6 +176,15 @@ void loop() {
     }
   }
   if (timer_active == 0) {
-    LowPower.powerDown(SLEEP_FOREVER, ADC_ON, BOD_OFF);
+    set_sleep_mode(SLEEP_MODE_PWR_DOWN);
+    noInterrupts();
+    sleep_enable();
+    interrupts();
+
+    // sleep
+    sleep_cpu();
+
+    sleep_disable();
+    interrupts();
   }
 }

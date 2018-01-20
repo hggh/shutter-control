@@ -175,6 +175,8 @@ void loop() {
       send_status();
     }
   }
+  // put the RFM69 back into rx mode
+  radio.receiveDone();
   if (timer_active == 0) {
     set_sleep_mode(SLEEP_MODE_PWR_DOWN);
     noInterrupts();

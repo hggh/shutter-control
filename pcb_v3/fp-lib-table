@@ -1,0 +1,8 @@
+(fp_lib_table
+  (lib (name finder-36)(type KiCad)(uri /home/jonas/entwicklung/kicad-libraries/finder-36.pretty)(options "")(descr ""))
+  (lib (name hf49fd)(type KiCad)(uri /home/jonas/entwicklung/kicad-libraries/hf49fd.pretty)(options "")(descr ""))
+  (lib (name ht7333-a)(type KiCad)(uri /home/jonas/entwicklung/kicad-libraries/ht7333-a.pretty)(options "")(descr ""))
+  (lib (name rfm69)(type KiCad)(uri /home/jonas/entwicklung/kicad-libraries/rfm69.pretty)(options "")(descr ""))
+  (lib (name isp)(type KiCad)(uri /home/jonas/entwicklung/kicad-libraries/isp.pretty)(options "")(descr ""))
+  (lib (name terminal_blocks)(type KiCad)(uri /home/jonas/entwicklung/kicad-libraries/terminal_blocks.pretty)(options "")(descr ""))
+)

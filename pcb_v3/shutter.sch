@@ -208,10 +208,8 @@ F 3 "" H 10050 3700 50  0001 C CNN
 	1    10050 3700
 	1    0    0    -1  
 $EndComp
-Text GLabel 6750 4450 2    60   Input ~ 0
+Text GLabel 7350 4450 2    60   Input ~ 0
 3.3V
-Wire Wire Line
-	6750 4450 6500 4450
 $Comp
 L CONN_01X01 P6
 U 1 1 5A88460A
@@ -995,4 +993,19 @@ Wire Wire Line
 Wire Wire Line
 	4750 6650 4750 6850
 Connection ~ 4750 6750
+$Comp
+L CONN_01X02 P10
+U 1 1 5A89A40D
+P 6800 4650
+F 0 "P10" H 6800 4800 50  0000 C CNN
+F 1 "ON/OFF" V 6900 4650 50  0000 C CNN
+F 2 "Pin_Headers:Pin_Header_Straight_1x02" H 6800 4650 50  0001 C CNN
+F 3 "" H 6800 4650 50  0000 C CNN
+	1    6800 4650
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	6500 4450 6750 4450
+Wire Wire Line
+	6850 4450 7350 4450
 $EndSCHEMATC

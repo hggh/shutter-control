@@ -109,6 +109,14 @@ void rollo_down() {
   interrupts();
 }
 
+void light_on() {
+  digitalWrite(PIN_LIGHT_POWER, HIGH);
+}
+
+void light_off() {
+  digitalWrite(PIN_LIGHT_POWER, LOW);
+}
+
 void setup() {
   power_twi_disable();
   power_adc_disable();
@@ -125,6 +133,9 @@ void setup() {
 
   pinMode(PIN_ROLLO_UPDOWN, OUTPUT);
   digitalWrite(PIN_ROLLO_UPDOWN, LOW);
+
+  pinMode(PIN_LIGHT_POWER, OUTPUT);
+  digitalWrite(PIN_LIGHT_POWER, LOW);
 
   radio.initialize(FREQUENCY, NODEID, NETWORKID);
   radio.encrypt(ENCRYPTKEY);
@@ -161,12 +172,18 @@ void loop() {
       rollo_down();
     }
 
+    if (command.equals("L_ON")) {
+      light_on();
+    }
+
+    if (command.equals("L_OFF")) {
+      light_off();
+    }
+
     if (command.equals("HALT")) {
       noInterrupts();
       rollo_power_down();
-      if (operation_active == OPERATION_UP) {
-        delay(200);
-      }
+      delay(200);
       rollo_complete_power_down();
       interrupts();
     }

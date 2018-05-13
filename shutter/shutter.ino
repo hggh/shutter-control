@@ -118,6 +118,7 @@ void light_off() {
 }
 
 void setup() {
+  ADCSRA &= ~(1 << 7);
   power_twi_disable();
   power_adc_disable();
 

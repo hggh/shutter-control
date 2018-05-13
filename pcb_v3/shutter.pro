@@ -1,4 +1,4 @@
-update=Sat Feb 17 14:29:12 2018
+update=Fri Mar  2 16:32:24 2018
 version=1
 last_client=kicad
 [pcbnew]
@@ -65,7 +65,7 @@ LibName33=/home/jonas/entwicklung/kicad-libraries/hf49fd
 [schematic_editor]
 version=1
 PageLayoutDescrFile=
-PlotDirectoryName=
+PlotDirectoryName=/tmp/
 SubpartIdSeparator=0
 SubpartFirstId=65
 NetFmtName=

@@ -1,3 +1,4 @@
 src/config.h
+*.swp
 .pioenvs
 .piolibdeps

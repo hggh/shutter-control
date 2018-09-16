@@ -2,6 +2,7 @@
 #include <avr/power.h>
 #include <avr/sleep.h>
 
+#include <JeeLib.h>
 #include <RFM69.h>
 
 #include "config.h"
@@ -18,6 +19,10 @@ volatile short timer_active = 0;
 
 void rollo_complete_power_down();
 void rollo_power_down();
+
+ISR(WDT_vect) {
+  Sleepy::watchdogEvent();
+}
 
 /*
  * ISR should called every second
@@ -200,15 +205,6 @@ void loop() {
   // put the RFM69 back into rx mode
   radio.receiveDone();
   if (timer_active == 0) {
-    set_sleep_mode(SLEEP_MODE_PWR_DOWN);
-    noInterrupts();
-    sleep_enable();
-    interrupts();
-
-    // sleep
-    sleep_cpu();
-
-    sleep_disable();
-    interrupts();
+    Sleepy::powerDown();
   }
 }

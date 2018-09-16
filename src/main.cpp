@@ -163,7 +163,6 @@ void loop() {
     String command = data.substring(0, index);
 
     if (radio.ACKRequested()) {
-      byte theNodeID = radio.SENDERID;
       radio.sendACK();
     }
 

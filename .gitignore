@@ -1,1 +1,3 @@
-shutter/config.h
+src/config.h
+.pioenvs
+.piolibdeps

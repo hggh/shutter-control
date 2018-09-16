@@ -1,3 +1,4 @@
+#include "Arduino.h"
 #include <avr/power.h>
 #include <avr/sleep.h>
 
@@ -14,6 +15,9 @@ RFM69 radio;
 volatile short operation_active = OPERATION_NOPOWER;
 volatile short timer_count = 0;
 volatile short timer_active = 0;
+
+void rollo_complete_power_down();
+void rollo_power_down();
 
 /*
  * ISR should called every second

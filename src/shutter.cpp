@@ -1,9 +1,10 @@
 #include "shutter.h"
 
-void Shutter::begin(uint8_t power, uint8_t updown, uint8_t seconds = 45) {
+void Shutter::begin(uint8_t power, uint8_t updown, uint8_t seconds) {
   pin_power = power;
   pin_updown = updown;
   running_seconds = seconds;
+
   pinMode(pin_power, OUTPUT);
   pinMode(pin_updown, OUTPUT);
 

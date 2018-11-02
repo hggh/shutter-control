@@ -2,62 +2,30 @@
 #include <avr/power.h>
 #include <avr/sleep.h>
 
-#include <JeeLib.h>
-#include <RFM69.h>
+#include <SPI.h>
+#include <WiFi101.h>
 
+#include "shutter.h"
+#include "light.h"
 #include "config.h"
 
-RFM69 radio;
-
-#define OPERATION_NOPOWER 0
-#define OPERATION_UP 1
-#define OPERATION_DOWN 2
-
-volatile short operation_active = OPERATION_NOPOWER;
-volatile short timer_count = 0;
-volatile short timer_active = 0;
-
-void rollo_complete_power_down();
-void rollo_power_down();
-
-ISR(WDT_vect) {
-  Sleepy::watchdogEvent();
-}
+WiFiServer server(80);
+Shutter shutter1;
+Shutter shutter2;
+Shutter shutter3;
+Light light1;
+Light light2;
 
 /*
  * ISR should called every second
  */
 ISR(TIMER1_COMPA_vect) {
-  if (timer_count > (ROLLO_COMPLETE_OPERATION_SECOND + 2) ) {
-    noInterrupts();
-    rollo_complete_power_down();
-    TCCR1A = 0;
-    TCCR1B = 0;
-    timer_active = 0;
-    interrupts();
-  }
-  if (timer_count > ROLLO_COMPLETE_OPERATION_SECOND) {
-    noInterrupts();
-    rollo_power_down();
-    interrupts();
-  }
-  timer_count++;
+  shutter1.timer();
+  shutter2.timer();
+  shutter3.timer();
 }
 
-
-void send_status() {
-  /*
-   * Status will return Status of the POWER_RELAY;UPDOWN_RELAY;TEMPERATURE
-   */
-
-  byte temperature = radio.readTemperature(-1);
-  char buffer[16];
-  sprintf(buffer, "shutter;%d;%d;%d", digitalRead(PIN_ROLLO_POWER), digitalRead(PIN_ROLLO_UPDOWN), (int)temperature);
-  radio.sendWithRetry(GATEWAYID, buffer, strlen(buffer), 2);
-  radio.receiveDone();
-}
-
-void setup_timer1() {
+void setup_timer1(void) {
   TCCR1A = 0;
   TCCR1B = 0;
   TCNT1 = 0;
@@ -72,58 +40,6 @@ void setup_timer1() {
   TCCR1B |= _BV(CS10);
   TCCR1B |= _BV(CS12);
   TIMSK1 |= _BV(OCIE1A);
-  timer_count = 0;
-  timer_active = 1;
-}
-
-
-void rollo_power_down() {
-  digitalWrite(PIN_ROLLO_POWER, LOW);
-}
-
-void rollo_complete_power_down() {
-  digitalWrite(PIN_ROLLO_POWER, LOW);
-  digitalWrite(PIN_ROLLO_UPDOWN, LOW);
-
-  operation_active = OPERATION_NOPOWER;
-}
-
-
-void rollo_up() {
-  noInterrupts();
-  if (operation_active == OPERATION_DOWN) {
-    rollo_power_down();
-    delay(900);
-    rollo_complete_power_down();
-  }
-  operation_active = OPERATION_UP;
-  digitalWrite(PIN_ROLLO_UPDOWN, LOW);
-  digitalWrite(PIN_ROLLO_POWER, HIGH);
-  setup_timer1();
-  interrupts();
-}
-
-void rollo_down() {
-  noInterrupts();
-  if (operation_active == OPERATION_UP) {
-    rollo_power_down();
-    delay(900);
-    rollo_complete_power_down();
-  }
-  operation_active = OPERATION_DOWN;
-  digitalWrite(PIN_ROLLO_UPDOWN, HIGH);
-  delay(5);
-  digitalWrite(PIN_ROLLO_POWER, HIGH);
-  setup_timer1();
-  interrupts();
-}
-
-void light_on() {
-  digitalWrite(PIN_LIGHT_POWER, HIGH);
-}
-
-void light_off() {
-  digitalWrite(PIN_LIGHT_POWER, LOW);
 }
 
 void setup() {
@@ -138,72 +54,95 @@ void setup() {
   power_usart0_disable();
 #endif
 
-  pinMode(PIN_ROLLO_POWER, OUTPUT);
-  digitalWrite(PIN_ROLLO_POWER, LOW);
+  if (WiFi.status() == WL_NO_SHIELD) {
+#ifdef DEBUG
+    Serial.println("WiFi Module not found")
+    while (true);
+#endif
+  }
 
-  pinMode(PIN_ROLLO_UPDOWN, OUTPUT);
-  digitalWrite(PIN_ROLLO_UPDOWN, LOW);
+  server.begin();
 
-  pinMode(PIN_LIGHT_POWER, OUTPUT);
-  digitalWrite(PIN_LIGHT_POWER, LOW);
+  setup_timer1();
+  shutter1.begin(A1, A2, 20);
+  shutter2.begin(A3, A4, 20);
+  shutter2.begin(8, 9, 20);
 
-  radio.initialize(FREQUENCY, NODEID, NETWORKID);
-  radio.encrypt(ENCRYPTKEY);
-
+  light1.begin(A5);
+  light2.begin(10);
 }
 
 void loop() {
-  if (radio.receiveDone()) {
-    String data;
-  
-    for (byte i = 0; i < radio.DATALEN; i++) {
-      data += (char)radio.DATA[i];
-    }
-    uint8_t index = data.indexOf(';');
-    String command = data.substring(0, index);
+  WiFiClient client = server.available();
+  if (client) {
+    String header_line = "";
+    while (client.connected()) {
+      char c = client.read();
+      if (c == '\n') {
+        if (header_line.length() == 0) {
+          // request end
+          break;
+        }
+        else {
+          header_line = "";
+        }
+      }
+      else if (c != '\r') {
+        header_line += c;
+      }
 
-    if (radio.ACKRequested()) {
-      radio.sendACK();
+      // Light 1
+      if (header_line.endsWith("GET /light1/on")) {
+        light1.on();
+      }
+      if (header_line.endsWith("GET /light1/off")) {
+        light1.off();
+      }
+
+      // Light 2
+      if (header_line.endsWith("GET /light2/on")) {
+        light2.on();
+      }
+      if (header_line.endsWith("GET /light2/off")) {
+        light2.off();
+      }
+
+
+      // Shutter1
+      if (header_line.endsWith("GET /shutter1/down")) {
+        shutter1.down();
+      }
+      if (header_line.endsWith("GET /shutter1/up")) {
+        shutter1.up();
+      }
+      if (header_line.endsWith("GET /shutter1/halt")) {
+        shutter1.halt();
+      }
+
+
+      // Shutter2
+      if (header_line.endsWith("GET /shutter2/down")) {
+        shutter2.down();
+      }
+      if (header_line.endsWith("GET /shutter2/up")) {
+        shutter2.up();
+      }
+      if (header_line.endsWith("GET /shutter2/halt")) {
+        shutter2.halt();
+      }
+
+      // Shutter3
+      if (header_line.endsWith("GET /shutter3/down")) {
+        shutter3.down();
+      }
+      if (header_line.endsWith("GET /shutter3/up")) {
+        shutter3.up();
+      }
+      if (header_line.endsWith("GET /shutter3/halt")) {
+        shutter3.halt();
+      }
     }
 
-#ifdef DEBUG
-    Serial.print('[');
-    Serial.print(radio.SENDERID, DEC);
-    Serial.print("] ");
-    Serial.println(command);
-#endif
-
-    if (command.equals("UP")) {
-      rollo_up();
-    }
-
-    if (command.equals("DOWN")) {
-      rollo_down();
-    }
-
-    if (command.equals("L_ON")) {
-      light_on();
-    }
-
-    if (command.equals("L_OFF")) {
-      light_off();
-    }
-
-    if (command.equals("HALT")) {
-      noInterrupts();
-      rollo_power_down();
-      delay(200);
-      rollo_complete_power_down();
-      interrupts();
-    }
-
-    if (command.equals("STATUS")) {
-      send_status();
-    }
-  }
-  // put the RFM69 back into rx mode
-  radio.receiveDone();
-  if (timer_active == 0) {
-    Sleepy::powerDown();
+    client.stop();
   }
 }

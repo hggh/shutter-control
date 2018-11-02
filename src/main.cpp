@@ -5,8 +5,8 @@
 #include <SPI.h>
 #include <WiFi101.h>
 
-#include "shutter.h"
-#include "light.h"
+#include "Shutter.h"
+#include "Light.h"
 #include "config.h"
 
 WiFiServer server(80);

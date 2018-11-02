@@ -1,4 +1,4 @@
-#include "light.h"
+#include "Light.h"
 
 void Light::begin(uint8_t light_pin) {
   pin = light_pin;

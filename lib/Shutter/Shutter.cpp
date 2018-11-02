@@ -1,4 +1,4 @@
-#include "shutter.h"
+#include "Shutter.h"
 
 void Shutter::begin(uint8_t power, uint8_t updown, uint8_t seconds) {
   pin_power = power;

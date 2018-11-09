@@ -57,8 +57,8 @@ void setup() {
   if (WiFi.status() == WL_NO_SHIELD) {
 #ifdef DEBUG
     Serial.println("WiFi Module not found")
-    while (true);
 #endif
+    while (true);
   }
 
   server.begin();

@@ -62,8 +62,6 @@ void Shutter::up(void) {
 }
 
 void Shutter::down(void) {
-  Serial.print("Down: ");
-  Serial.println(pin_power);
   noInterrupts();
   if (operation == OPERATION_UP) {
     power_down();

@@ -2,8 +2,8 @@
 #include <ESP8266WiFi.h>
 #include <ArduinoOTA.h>
 
-#include "Shutter.h"
-#include "Light.h"
+#include <Shutter.h>
+#include <Light.h>
 #include "config.h"
 
 extern "C" {

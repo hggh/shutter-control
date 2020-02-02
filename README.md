@@ -1,5 +1,6 @@
-# shutter-control
-control shutter engine: relay, atmel 328P, RFM69
+# shutter-control + wind speed sensor
+
+control shutter engine: relay, ESP8266
 
 
 ## parts

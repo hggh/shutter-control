@@ -2,6 +2,9 @@
 #include <ESP8266WiFi.h>
 #include <ArduinoOTA.h>
 
+#include <PubSubClient.h>
+
+#include <ShiftOutRegister.h>
 #include <Shutter.h>
 #include <Light.h>
 #include "config.h"
@@ -10,8 +13,11 @@ extern "C" {
 #include "user_interface.h"
 }
 
-
+WiFiClient espClient;
+PubSubClient client(espClient);
 WiFiServer server(80);
+
+ShiftOutRegister sh_register;
 Shutter shutter1;
 Shutter shutter2;
 Light light1;
@@ -30,6 +36,11 @@ void setup_timer1(void) {
   os_timer_arm(&Timer1, 1000, true);
 }
 
+void mqtt_check_connection() {
+  if (!client.connected()) {
+    client.connect("roller-light-sun-blind", MQTT_USERNAME, MQTT_PASSWORD);
+  }
+}
 
 void wificonnect() {
   WiFi.mode(WIFI_STA);
@@ -37,31 +48,46 @@ void wificonnect() {
   while (WiFi.status() != WL_CONNECTED) {
     delay(200);
   }
+  mqtt_check_connection();
 }
 
 void setup() {
+  WiFi.hostname("roller-light-sun-blind");
+
+  client.setServer(MQTT_SERVER, 1883);
 
   setup_timer1();
   wificonnect();
 
   server.begin();
 
-  shutter1.begin(D1, D2, 40);
-  shutter2.begin(D7, D8, 60);
+  /**
+     D6/GPIO12 == data/SER
+     D2/GPIO4  == shift/SRCLK
+     D1/GPIO5  == store/RCLK
+     D5/GPIO14  == enable/OE
+  **/
+  sh_register.init(D6, D2, D1, D5, 8);
 
-  light1.begin(D5);
-  light2.begin(D6);
+  shutter1.begin(2, 3, 40, &sh_register);
+  shutter2.begin(4, 5, 60, &sh_register);
+
+  light1.begin(0, &sh_register);
+  light2.begin(1, &sh_register);
 
   ArduinoOTA.setPassword(OTA_PASS);
   ArduinoOTA.begin();
 }
 
 void loop() {
+  delay(1);
   if (WiFi.status() != WL_CONNECTED) {
     wificonnect();
   }
 
   ArduinoOTA.handle();
+  mqtt_check_connection();
+  client.loop();
 
   // Check if a client has connected
   WiFiClient client = server.available();

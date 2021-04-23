@@ -1,6 +1,6 @@
-# shutter-control + wind speed sensor
+# shutter-control + light control
 
-control shutter engine: relay, ESP8266
+3x Rolladensteuerung 3x Lichtsteuerung
 
 
 ## parts

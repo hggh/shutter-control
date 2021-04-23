@@ -38,7 +38,7 @@ void setup_timer1(void) {
 
 void mqtt_check_connection() {
   if (!client.connected()) {
-    client.connect("roller-light-sun-blind", MQTT_USERNAME, MQTT_PASSWORD);
+    client.connect("roller-light-sun-blind-windspeed", MQTT_USERNAME, MQTT_PASSWORD);
   }
 }
 
@@ -52,7 +52,7 @@ void wificonnect() {
 }
 
 void setup() {
-  WiFi.hostname("roller-light-sun-blind");
+  WiFi.hostname("roller-light-sun-blind-windspeed");
 
   client.setServer(MQTT_SERVER, 1883);
 

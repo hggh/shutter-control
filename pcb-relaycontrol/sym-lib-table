@@ -1,0 +1,6 @@
+(sym_lib_table
+  (lib (name rollershutter-light-control-rescue)(type Legacy)(uri ${KIPRJMOD}/rollershutter-light-control-rescue.lib)(options "")(descr ""))
+  (lib (name hf49fd)(type Legacy)(uri /home/jonas/entwicklung/kicad-libraries/hf49fd.lib)(options "")(descr ""))
+  (lib (name js5mn)(type Legacy)(uri /home/jonas/entwicklung/kicad-libraries/js5mn-kt.lib)(options "")(descr ""))
+  (lib (name finder-36)(type Legacy)(uri /home/jonas/entwicklung/kicad-libraries/finder-36.lib)(options "")(descr ""))
+)

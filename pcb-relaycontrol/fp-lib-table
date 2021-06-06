@@ -1,0 +1,5 @@
+(fp_lib_table
+  (lib (name RNDs)(type KiCad)(uri /home/jonas/entwicklung/kicad-libraries/terminal_blocks.pretty)(options "")(descr ""))
+  (lib (name js5mn-kt)(type KiCad)(uri /home/jonas/entwicklung/kicad-libraries/js5mn-kt.pretty)(options "")(descr ""))
+  (lib (name finder-36)(type KiCad)(uri /home/jonas/entwicklung/kicad-libraries/finder-36.pretty)(options "")(descr ""))
+)
